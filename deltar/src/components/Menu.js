@@ -1,0 +1,160 @@
+const React = require('react')
+const ipcRenderer = window.ipcRenderer
+const autobind = require('class-autobind').default
+const confirmation = require('./dialogs/confirmationDialog')
+
+const {
+  Menu,
+  MenuItem
+} = require('@blueprintjs/core')
+
+class Controller {
+  constructor (props) {
+    this.props = props
+    autobind(this)
+  }
+
+  onCreateChat () {
+    this.props.changeScreen('CreateChat')
+  }
+
+  onEditGroup () {
+    this.props.changeScreen('EditGroup', { chat: this.props.selectedChat })
+  }
+
+  onLeaveGroup () {
+    const selectedChat = this.props.selectedChat
+    const tx = window.translate
+    confirmation(tx('ask_leave_group'), yes => {
+      if (yes) {
+        ipcRenderer.send('leaveGroup', selectedChat.id)
+      }
+    })
+  }
+
+  onArchiveChat (archive) {
+    const selectedChat = this.props.selectedChat
+    ipcRenderer.send('archiveChat', selectedChat.id, archive)
+  }
+
+  onBlockContact () {
+    const selectedChat = this.props.selectedChat
+    const tx = window.translate
+    if (selectedChat && selectedChat.contacts.length) {
+      var contact = selectedChat.contacts[0]
+      confirmation(tx('ask_block_contact'), yes => {
+        if (yes) {
+          ipcRenderer.send('blockContact', contact.id)
+        }
+      })
+    }
+  }
+
+  onDeleteChat () {
+    const selectedChat = this.props.selectedChat
+    const tx = window.translate
+    confirmation(tx('ask_delete_chat_desktop'), yes => {
+      if (yes) {
+        ipcRenderer.send('deleteChat', selectedChat.id)
+      }
+    })
+  }
+
+  onUnblockContacts () {
+    this.props.changeScreen('UnblockContacts')
+  }
+
+  onContactRequests () {
+    ipcRenderer.send('contactRequests')
+  }
+
+  logout () {
+    ipcRenderer.send('logout')
+  }
+
+  onEncrInfo () {
+    this.props.openDialog('EncrInfo', { chat: this.props.selectedChat })
+  }
+}
+
+class DeltaMenu extends React.Component {
+  render () {
+    const {
+      openDialog,
+      selectedChat,
+      showArchivedChats
+    } = this.props
+
+    const tx = window.translate
+
+    const isGroup = selectedChat && selectedChat.isGroup
+    const controller = new Controller(this.props)
+
+    let chatMenu = <div />
+
+    if (selectedChat) {
+      chatMenu = <div>
+        <Menu.Divider />
+        {showArchivedChats
+          ? <MenuItem icon='export' text={tx('menu_unarchive_chat')}
+            onClick={() => controller.onArchiveChat(false)} />
+          : <MenuItem icon='import' text={tx('menu_archive_chat')}
+            onClick={() => controller.onArchiveChat(true)} />
+        }
+        <MenuItem
+          icon='delete'
+          text={tx('menu_delete_chat')}
+          onClick={controller.onDeleteChat} />
+        <MenuItem
+          icon='lock'
+          text={tx('encryption_info_desktop')}
+          onClick={controller.onEncrInfo} />
+        {isGroup
+          ? (
+            <div>
+              <MenuItem
+                icon='edit'
+                text={tx('menu_edit_group')}
+                onClick={controller.onEditGroup}
+              />
+              <MenuItem
+                icon='log-out' text={tx('menu_leave_group')}
+                onClick={controller.onLeaveGroup}
+              />
+            </div>
+          ) : <MenuItem
+            icon='blocked-person'
+            text={tx('menu_block_contact')}
+            onClick={controller.onBlockContact}
+          />
+        }
+        <Menu.Divider />
+      </div>
+    } else {
+      chatMenu = <Menu.Divider />
+    }
+
+    return (<Menu>
+      <MenuItem icon='plus' text={tx('menu_new_chat')} onClick={controller.onCreateChat} />
+      {chatMenu}
+      <MenuItem
+        icon='settings'
+        text={tx('menu_settings')}
+        onClick={() => openDialog('Settings')}
+      />
+      <MenuItem
+        icon='person'
+        text={tx('menu_deaddrop')}
+        onClick={controller.onContactRequests}
+      />
+      <MenuItem
+        icon='blocked-person'
+        text={tx('unblock_contacts_desktop')}
+        onClick={controller.onUnblockContacts}
+      />
+      <MenuItem icon='log-out' text={tx('logout_desktop')} onClick={controller.logout} />
+    </Menu>)
+  }
+}
+
+module.exports = DeltaMenu
