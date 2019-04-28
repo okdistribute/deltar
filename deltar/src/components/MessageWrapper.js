@@ -207,12 +207,14 @@ class RenderMessage extends React.Component {
 
 function convert (message) {
   message.onDownload = () => {
+    /**
     const defaultPath = path.join(remote.app.getPath('downloads'), path.basename(message.msg.file))
     remote.dialog.showSaveDialog({
       defaultPath
     }, (filename) => {
       if (filename) ipcRenderer.send('saveFile', message.msg.file, filename)
     })
+    */
   }
 
   message.onDelete = () => ipcRenderer.send('deleteMessage', message.id)
