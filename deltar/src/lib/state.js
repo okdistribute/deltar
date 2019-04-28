@@ -71,6 +71,6 @@ function saveImmediate (state, cb) {
   try {
     appConfig.write(copy)
   } catch (err) {
-    log.info('Got error saving state', err)
+    console.log('Got error saving state', err)
   }
 }
