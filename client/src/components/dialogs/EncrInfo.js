@@ -7,14 +7,10 @@ const ContactList = require('../ContactList')
 class EncrInfo extends React.Component {
   constructor (props) {
     super(props)
-    this.state = {
-      encrInfo: false
-    }
     this.onClose = this.onClose.bind(this)
   }
 
   onClose () {
-    this.setState({ encrInfo: false })
     this.props.onClose()
   }
 
@@ -22,15 +18,14 @@ class EncrInfo extends React.Component {
     const { chat } = this.props
     if (!chat) return
     let contacts = chat.contacts
-    if (!this.state.encrInfo && contacts && contacts.length === 1) {
+    if (contacts && contacts.length === 1) {
       this._getEncrInfoForContactId(contacts[0].id)
     }
   }
 
   _getEncrInfoForContactId (contactId) {
     console.log(`_getEncrInfoForContactId ${contactId}`)
-    const encrInfo = ipcRenderer.sendSync('getEncrInfo', contactId)
-    this.setState({ encrInfo })
+    ipcRenderer.send('getEncrInfo', contactId)
   }
 
   _renderContactList () {
@@ -41,12 +36,7 @@ class EncrInfo extends React.Component {
     />
   }
 
-  _renderEncrInfo () {
-    return <pre>{this.state.encrInfo}</pre>
-  }
-
   render () {
-    const { encrInfo } = this.state
     const { chat, isOpen } = this.props
     const tx = window.translate
     return (
@@ -58,7 +48,7 @@ class EncrInfo extends React.Component {
         canOutsideClickClose={false}>
         <div className={Classes.DIALOG_BODY}>
           <pre>Chat name: { chat && chat.name }</pre>
-          { encrInfo && <pre>{encrInfo}</pre>}
+          { chat.encrInfo && <pre>{chat.encrInfo}</pre>}
           { chat && chat.contacts.length > 1 && this._renderContactList()}
         </div>
       </Dialog>

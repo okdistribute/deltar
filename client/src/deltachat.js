@@ -1,6 +1,7 @@
 const DeltaChatJs = require('deltachat-js')
 const C = require('deltachat-js/constants')
 const EventEmitter = require('events').EventEmitter
+const log = {info: console.log}
 
 const PAGE_SIZE = 20
 
@@ -283,6 +284,7 @@ class DeltaChatController extends EventEmitter {
     log.debug(`action - selecting chat ${chatId}`)
     this._pages = 1
     this._selectedChatId = chatId
+    this._encrInfo = null
     this._render()
   }
 
@@ -457,6 +459,7 @@ class DeltaChatController extends EventEmitter {
         this._dc.markSeenMessages(selectedChat.messages.map((msg) => msg.id))
       }
     }
+    if (this._encrInfo) selectedChat.encrInfo = this._encrInfo
 
     return selectedChat
   }
@@ -585,7 +588,7 @@ class DeltaChatController extends EventEmitter {
   }
 
   getEncrInfo (contactId) {
-    return this._dc.getContactEncryptionInfo(contactId)
+    this._encrInfo = this._dc.getContactEncryptionInfo(contactId)
   }
 
   getChatMedia (msgType1, msgType2) {
@@ -603,6 +606,7 @@ class DeltaChatController extends EventEmitter {
     this.configuring = false
     this.credentials = { addr: '' }
     this._selectedChatId = null
+    this._encrInfo = null
     this._showArchivedChats = false
     this._pages = 1
     this._query = ''
