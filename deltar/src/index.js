@@ -1,7 +1,6 @@
 const React = require('react')
 const ReactDOM = require('react-dom')
 
-const localize = require('../localize')
 const moment = require('moment')
 const App = require('./App')
 const State = require('./lib/state')
@@ -15,7 +14,6 @@ state.logins = ['mylogin1@deltachat.eu']
 
 setupLocaleData(state.saved.locale)
 
-localize.setup(state.saved.locale || navigator.language)
 window.saveState = () => State.save({ saved: state.saved })
 window.onbeforeunload = window.saveState
 
@@ -64,7 +62,7 @@ function setupLocaleData (locale) {
   moment.locale(locale)
   // TODO: instead call http to local rust static server?
   ipcRenderer.on('locale-data-resp', function (localeData) {
-    window.translate = localize.translate(window.localeData.messages)
+    //window.translate = localize.translate(window.localeData.messages)
   })
   ipcRenderer.send('locale-data', locale)
 }

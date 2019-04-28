@@ -1,5 +1,4 @@
 const { EventEmitter } = require('events')
-const log = require('../logger').getLogger('renderer/state')
 
 const SAVE_DEBOUNCE_INTERVAL = 1000
 const localStorage = window.localStorage
@@ -59,7 +58,7 @@ function load () {
   try {
     var saved = appConfig.read()
   } catch (err) {
-    log.info('Missing configuration file. Using default values.', err)
+    console.log('Missing configuration file. Using default values.', err)
   }
   const state = getDefaultState()
   state.saved = Object.assign(state.saved, err ? {} : saved)
@@ -67,7 +66,7 @@ function load () {
 }
 
 function saveImmediate (state, cb) {
-  log.info(`Saving state to localStorage`)
+  console.log(`Saving state to localStorage`)
   const copy = Object.assign({}, state.saved)
   try {
     appConfig.write(copy)
