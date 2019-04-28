@@ -14,25 +14,10 @@ class EncrInfo extends React.Component {
     this.props.onClose()
   }
 
-  componentDidUpdate () {
-    const { chat } = this.props
-    if (!chat) return
-    let contacts = chat.contacts
-    if (contacts && contacts.length === 1) {
-      this._getEncrInfoForContactId(contacts[0].id)
-    }
-  }
-
-  _getEncrInfoForContactId (contactId) {
-    console.log(`_getEncrInfoForContactId ${contactId}`)
-    ipcRenderer.send('getEncrInfo', contactId)
-  }
-
   _renderContactList () {
     return <ContactList
       small
       contacts={this.props.chat.contacts}
-      onContactClick={(contact) => this._getEncrInfoForContactId(contact.id)}
     />
   }
 
@@ -48,7 +33,6 @@ class EncrInfo extends React.Component {
         canOutsideClickClose={false}>
         <div className={Classes.DIALOG_BODY}>
           <pre>Chat name: { chat && chat.name }</pre>
-          { chat.encrInfo && <pre>{chat.encrInfo}</pre>}
           { chat && chat.contacts.length > 1 && this._renderContactList()}
         </div>
       </Dialog>
