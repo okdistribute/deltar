@@ -8,7 +8,6 @@ const StyleVariables = require('./style-variables')
 const moment = require('moment')
 const mime = require('mime-types')
 const filesizeConverter = require('filesize')
-const log = require('../../logger').getLogger('renderer/messageWrapper')
 
 const GROUP_TYPES = [
   C.DC_CHAT_TYPE_GROUP,
@@ -172,8 +171,8 @@ class RenderMessage extends React.Component {
     const conversationType = convertChatType(chat.type)
 
     const contact = {
-      onSendMessage: () => log.debug(`send a message to ${fromId}`),
-      onClick: () => { log.debug('click contact') }
+      onSendMessage: () => console.log(`send a message to ${fromId}`),
+      onClick: () => { console.log('click contact') }
     }
 
     const props = {

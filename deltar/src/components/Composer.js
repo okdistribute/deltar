@@ -5,7 +5,6 @@ const StyleVariables = require('./style-variables')
 const styled = require('styled-components').default
 const { Picker } = require('emoji-mart')
 
-const log = require('../../logger').getLogger('renderer/composer')
 const SettingsContext = require('../contexts/SettingsContext')
 const ComposerMessageInput = require('./ComposerMessageInput')
 
@@ -156,7 +155,7 @@ class Composer extends React.Component {
   sendMessage () {
     let message = this.messageInputRef.current.getText()
     if (message.match(/^\s*$/)) {
-      log.debug(`Empty message: don't send it...`)
+      console.log(`Empty message: don't send it...`)
       return
     }
     this.props.onSubmit({
@@ -188,7 +187,7 @@ class Composer extends React.Component {
   }
 
   onEmojiSelect (emoji) {
-    log.debug(`EmojiPicker: Selected ${emoji.id}`)
+    console.log(`EmojiPicker: Selected ${emoji.id}`)
     this.messageInputRef.current.insertStringAtCursorPosition(emoji.native)
   }
 
@@ -202,7 +201,7 @@ class Composer extends React.Component {
 
     if (!this.insideBoundingRect(x, y, bounding, 10) &&
         !this.insideBoundingRect(x, y, boundingButton, 10)) {
-      log.debug(`Closing EmojiPicker x: ${x} y: ${y}`)
+      console.log(`Closing EmojiPicker x: ${x} y: ${y}`)
       this.setState({ showEmojiPicker: false })
     }
   }

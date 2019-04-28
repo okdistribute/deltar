@@ -6,7 +6,6 @@ const Composer = require('./Composer')
 const MessageWrapper = require('./MessageWrapper')
 const { ConversationContext } = require('./conversations')
 const StyleVariables = require('./style-variables')
-const log = require('../../logger').getLogger('renderer/chatView')
 
 const MutationObserver = window.MutationObserver
 
@@ -137,7 +136,7 @@ class ChatView extends React.Component {
 
   componentDidMount () {
     this.doc = document.querySelector(`.${ChatViewWrapper.styledComponentId} #the-conversation`)
-    if (!this.doc) return log.warn(`Didn't find .ChatViewWrapper #the-conversation element`)
+    if (!this.doc) return console.log(`Didn't find .ChatViewWrapper #the-conversation element`)
     if (!this.observer && this.conversationDiv.current) {
       this.observer = new MutationObserver(this.handleScroll.bind(this))
       this.observer.observe(this.conversationDiv.current, { attributes: false, childList: true, subtree: true })
@@ -186,7 +185,7 @@ class ChatView extends React.Component {
       if (!forbiddenPathRegEx.test(path.replace('\\', '/'))) {
         ipcRenderer.send('sendMessage', chat.id, null, path)
       } else {
-        log.warn('Prevented a file from being send again while dragging it out')
+        console.log('Prevented a file from being send again while dragging it out')
       }
     }
   }
@@ -206,7 +205,7 @@ class ChatView extends React.Component {
           <ConversationContext>
             {chat.messages.map(rawMessage => {
               const message = MessageWrapper.convert(rawMessage)
-              message.onReply = () => log.debug('reply to', message)
+              message.onReply = () => console.log('reply to', message)
               message.onForward = this.onForward.bind(this, message)
               return MessageWrapper.render({
                 message,

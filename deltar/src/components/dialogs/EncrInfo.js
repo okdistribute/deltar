@@ -2,8 +2,6 @@ const React = require('react')
 const ipcRenderer = window.ipcRenderer
 const { Classes, Dialog } = require('@blueprintjs/core')
 
-const log = require('../../../logger').getLogger('renderer/encrInfo')
-
 const ContactList = require('../ContactList')
 
 class EncrInfo extends React.Component {
@@ -30,7 +28,7 @@ class EncrInfo extends React.Component {
   }
 
   _getEncrInfoForContactId (contactId) {
-    log.debug(`_getEncrInfoForContactId ${contactId}`)
+    console.log(`_getEncrInfoForContactId ${contactId}`)
     const encrInfo = ipcRenderer.sendSync('getEncrInfo', contactId)
     this.setState({ encrInfo })
   }

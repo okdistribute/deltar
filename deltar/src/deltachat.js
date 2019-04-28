@@ -1,7 +1,6 @@
 const DeltaChatJs = require('deltachat-js')
 const C = require('deltachat-js/constants')
 const EventEmitter = require('events').EventEmitter
-const log = require('../logger').getLogger('renderer/deltachat')
 
 const PAGE_SIZE = 20
 
@@ -28,13 +27,13 @@ class DeltaChatController extends EventEmitter {
   }
 
   logCoreEvent (event, payload) {
-    log.debug('Core Event', event, payload)
+    console.log('Core Event', event, payload)
   }
 
   login (credentials) {
     // Creates a separate DB file for each login
     const cwd = credentials.addr
-    log.info(`Using deltachat instance ${cwd}`)
+    console.log(`Using deltachat instance ${cwd}`)
     this._dc = new DeltaChatJs(this.bindings)
     const dc = this._dc
     this.credentials = credentials
@@ -42,11 +41,11 @@ class DeltaChatController extends EventEmitter {
     dc.open(cwd, err => {
       if (err) throw err
       const onReady = () => {
-        log.info('Ready')
+        console.log('Ready')
         this.ready = true
         this.configuring = false
         this.emit('ready', this.credentials)
-        log.info('dc_get_info', dc.getInfo())
+        console.log('dc_get_info', dc.getInfo())
         this._render()
       }
       if (!dc.isConfigured()) {
@@ -60,7 +59,7 @@ class DeltaChatController extends EventEmitter {
     })
 
     dc.on('ALL', (event, data1, data2) => {
-      log.debug('ALL event', { event, data1, data2 })
+      console.log('ALL event', { event, data1, data2 })
     })
 
     dc.on('DC_EVENT_CONFIGURE_PROGRESS', progress => {
@@ -113,12 +112,12 @@ class DeltaChatController extends EventEmitter {
     })
 
     dc.on('DC_EVENT_WARNING', (warning) => {
-      log.warn(warning)
+      console.log(warning)
     })
 
     const onError = error => {
       this.emit('error', error)
-      log.error(error)
+      console.error(error)
     }
 
     dc.on('DC_EVENT_ERROR', (error) => {
@@ -138,7 +137,7 @@ class DeltaChatController extends EventEmitter {
     this.close()
     this._resetState()
 
-    log.info('Logged out')
+    console.log('Logged out')
     this.emit('logout')
     if (typeof this._render === 'function') this._render()
   }
@@ -174,7 +173,7 @@ class DeltaChatController extends EventEmitter {
   }
 
   deleteMessage (id) {
-    log.info(`deleting message ${id}`)
+    console.log(`deleting message ${id}`)
     this._dc.deleteMessages(id)
   }
 
@@ -191,12 +190,12 @@ class DeltaChatController extends EventEmitter {
   }
 
   chatWithContact (deadDrop) {
-    log.info(`chat with dead drop ${deadDrop}`)
+    console.log(`chat with dead drop ${deadDrop}`)
     const contact = this._dc.getContact(deadDrop.contact.id)
     const address = contact.getAddress()
     const name = contact.getName() || address.split('@')[0]
     this._dc.createContact(name, address)
-    log.info(`Added contact ${name} (${address})`)
+    console.log(`Added contact ${name} (${address})`)
     const chatId = this._dc.createChatByMessageId(deadDrop.id)
     if (chatId) this.selectChat(chatId)
   }
@@ -205,7 +204,7 @@ class DeltaChatController extends EventEmitter {
     const contact = this._dc.getContact(contactId)
     this._dc.blockContact(contactId, false)
     const name = contact.getNameAndAddress()
-    log.info(`Unblocked contact ${name} (id = ${contactId})`)
+    console.log(`Unblocked contact ${name} (id = ${contactId})`)
   }
 
   blockContact (contactId) {
@@ -323,7 +322,7 @@ class DeltaChatController extends EventEmitter {
   }
 
   setConfig (key, value) {
-    log.info(`Setting config ${key}:${value}`)
+    console.log(`Setting config ${key}:${value}`)
     return this._dc.setConfig(key, String(value))
   }
 
