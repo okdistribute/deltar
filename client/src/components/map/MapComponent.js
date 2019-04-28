@@ -60,57 +60,58 @@ class MapComponent extends React.Component {
       this.removeAllLayer()
       this.mapDataStore.clear()
     }
-    let locationsForChat = ipcRenderer.sendSync('getLocations', selectedChat.id, 0, this.getTimestampForRange(), 0)
-    contacts.map(contact => {
-      let locationsForContact = locationsForChat.filter(location => location.contactId === contact.id)
-      if (locationsForContact && locationsForContact.length) {
-        let pointsForLayer = locationsForContact.map(point => [point.longitude, point.latitude])
-        // map data to handle map state
-        let mapData = {
-          contact: contact,
-          pathLayerId: 'contact-route-' + contact.id,
-          pointsLayerId: 'points-' + contact.id,
-          hidden: false
-        }
-        const existingContact = this.state.currentContacts.find(item => item.id === contact.id)
-        if (existingContact) {
-          mapData.hidden = existingContact.hidden
-        }
-        this.mapDataStore.set(contact.id, mapData)
-        this.addLayerForContact(mapData, locationsForContact)
+    ipcRenderer.async('getLocations', selectedChat.id, 0, this.getTimestampForRange(), 0, function (locationsForChat) {
+      contacts.map(contact => {
+        let locationsForContact = locationsForChat.filter(location => location.contactId === contact.id)
+        if (locationsForContact && locationsForContact.length) {
+          let pointsForLayer = locationsForContact.map(point => [point.longitude, point.latitude])
+          // map data to handle map state
+          let mapData = {
+            contact: contact,
+            pathLayerId: 'contact-route-' + contact.id,
+            pointsLayerId: 'points-' + contact.id,
+            hidden: false
+          }
+          const existingContact = this.state.currentContacts.find(item => item.id === contact.id)
+          if (existingContact) {
+            mapData.hidden = existingContact.hidden
+          }
+          this.mapDataStore.set(contact.id, mapData)
+          this.addLayerForContact(mapData, locationsForContact)
 
-        let lastPoint = locationsForContact[0]
-        let lastDate = formatRelativeTime(lastPoint.timestamp * 1000, { extended: true })
-        let popup = new mapboxgl.Popup({ offset: 25 }).setHTML(this.renderPopupMessage(contact.firstName, lastDate, null))
-        if (mapData.marker) {
-          // remove old marker
-          mapData.marker.remove()
+          let lastPoint = locationsForContact[0]
+          let lastDate = formatRelativeTime(lastPoint.timestamp * 1000, { extended: true })
+          let popup = new mapboxgl.Popup({ offset: 25 }).setHTML(this.renderPopupMessage(contact.firstName, lastDate, null))
+          if (mapData.marker) {
+            // remove old marker
+            mapData.marker.remove()
+          }
+          mapData.marker = new mapboxgl.Marker({ color: '#' + contact.color.toString(16) })
+            .setLngLat([lastPoint.longitude, lastPoint.latitude])
+            .setPopup(popup)
+          if (mapData.hidden) {
+            // the contact is hidden so don't show the contact's layers
+            this.toggleContactLayer(contact.id, false)
+          } else {
+            mapData.marker.addTo(this.map)
+          }
+          // light weight contact object for component state in contact filter control
+          currentContacts.push(
+            {
+              id: contact.id,
+              name: contact.firstName,
+              hidden: mapData.hidden,
+              color: contact.color
+            })
+          allPoints = allPoints.concat(pointsForLayer)
         }
-        mapData.marker = new mapboxgl.Marker({ color: '#' + contact.color.toString(16) })
-          .setLngLat([lastPoint.longitude, lastPoint.latitude])
-          .setPopup(popup)
-        if (mapData.hidden) {
-          // the contact is hidden so don't show the contact's layers
-          this.toggleContactLayer(contact.id, false)
-        } else {
-          mapData.marker.addTo(this.map)
-        }
-        // light weight contact object for component state in contact filter control
-        currentContacts.push(
-          {
-            id: contact.id,
-            name: contact.firstName,
-            hidden: mapData.hidden,
-            color: contact.color
-          })
-        allPoints = allPoints.concat(pointsForLayer)
+      })
+      this.setState({ currentContacts: currentContacts })
+      if (allPoints.length > 0) {
+        this.map.fitBounds(geojsonExtent({ type: 'Point', coordinates: allPoints }), { padding: 100 })
       }
+      this.state.lastTimeOffset = this.state.timeOffset
     })
-    this.setState({ currentContacts: currentContacts })
-    if (allPoints.length > 0) {
-      this.map.fitBounds(geojsonExtent({ type: 'Point', coordinates: allPoints }), { padding: 100 })
-    }
-    this.state.lastTimeOffset = this.state.timeOffset
   }
 
   removeAllLayer () {

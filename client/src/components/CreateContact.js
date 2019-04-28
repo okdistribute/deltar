@@ -50,8 +50,9 @@ class CreateContact extends React.Component {
     const { name, email } = this.state
 
     function createContact () {
-      const id = ipcRenderer.sendSync('createContact', name, email)
-      self.props.screenProps.onSubmit(id)
+      ipcRenderer.async('createContact', name, email, function (id) {
+        self.props.screenProps.onSubmit(id)
+      })
     }
 
     // TODO: better frontend email validation

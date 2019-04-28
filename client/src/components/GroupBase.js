@@ -98,14 +98,16 @@ class GroupBase extends React.Component {
   }
 
   onShowQrVerifyCode () {
-    const qrCode = ipcRenderer.sendSync('getQrCode')
-    this.props.openDialog('QrCode', { qrCode })
+    ipcRenderer.async('getQrCode', (qrCode) => {
+      this.props.openDialog('QrCode', { qrCode })
+    })
   }
 
   onShowQrInviteCode () {
     const { chatId } = this.state
-    const qrCode = ipcRenderer.sendSync('getQrCode', chatId)
-    this.props.openDialog('QrCode', { qrCode })
+    ipcRenderer.async('getQrCode', chatId, (qrCode) => {
+      this.props.openDialog('QrCode', { qrCode })
+    })
   }
 
   back () {

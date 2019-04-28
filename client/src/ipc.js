@@ -1,21 +1,21 @@
 const EventEmitter = require('events').EventEmitter
-const DeltaChat = require('./deltachat')
 const functionNames = require('deltachat-js/dc_functions')
 const C = require('deltachat-js/constants')
+const DeltaChat = require('./deltachat')
 
 class IPC extends EventEmitter {
   _emit (namespace, cmd, eventString) {
     console.log(eventString)
     try {
-      const payload = JSON.parse(eventString)
-      this.emit(cmd, ...payload)
+      const args = JSON.parse(eventString)
+      this.emit(cmd, ...args)
     } catch (err) {
-      console.error('failed to parse payload', err, namespace, cmd, eventString)
+      console.error('failed to parse args', err, namespace, cmd, eventString)
     }
   }
 
-  send (namespace, cmd, payload) {
-    window.external.invoke(JSON.stringify({ namespace, cmd, payload }))
+  send (namespace, cmd, args) {
+    window.external.invoke(JSON.stringify({ namespace, cmd, args }))
   }
 }
 
@@ -23,31 +23,37 @@ class Renderer extends EventEmitter {
   constructor (saved, render) {
     super()
     this.rpc = new IPC()
-    this.rpc.on('dc', ({ cmd, payload }) => {
-      this.emit(cmd, payload)
+    this.rpc.on('dc', ({ cmd, args }) => {
+      this.emit(cmd, args)
     })
     functionNames.forEach((cmd) => {
       this.bindings[cmd] = () => {
-        var payload = Object.values(arguments)
-        console.log('sending to rpc', cmd, payload)
-        this.rpc.send('dc', cmd, payload)
+        var args = Object.values(arguments)
+        console.log('sending to rpc', cmd, args)
+        this.rpc.send('dc', cmd, args)
       }
+    })
+    this.rpc.on('response', ({ cmd, result }) => {
+      this.emit(cmd + 'Resp', result)
     })
     this.dc = new DeltaChat(this.bindings, saved, render, txCoreStrings())
     this.dc.on('*', (...args) => this.emit(this.event, ...args))
   }
 
+  _getCmd (name) {
+    var fn = this.dc[name]
+    console.log('got fn', fn)
+    if (fn) return fn
+    else throw new Error('cmd not found', name)
+  }
+
   send () {
     var args = Object.values(arguments)
-    if (!args.length) throw new Error('cmd not found', args)
     var cmd = args.shift()
     console.log('got cmd', cmd)
-    var payload = args
-    console.log('got payload', payload)
-    var fn = this.dc[cmd]
-    console.log('got fn', fn)
-    if (fn) return fn.apply(this.dc, payload)
-    else throw new Error('cmd not found', args)
+    console.log('got args', args)
+    var fn = this._getCmd(cmd)
+    return fn.apply(this.dc, args)
   }
 }
 

@@ -57,7 +57,7 @@ class Settings extends React.Component {
 
   componentDidUpdate (prevProps) {
     if (this.props.isOpen && !prevProps.isOpen) {
-      const settings = ipcRenderer.sendSync(
+      ipcRenderer.async(
         'getConfigFor', [
           'addr',
           'mail_pw',
@@ -76,23 +76,22 @@ class Settings extends React.Component {
           'configured_send_port',
           'configured_send_security',
           'configured_e2ee_enabled'
-        ]
-      )
+        ], function (settings) {
+          const advancedSettings = {
+            mailUser: settings['configured_mail_user'],
+            mailServer: settings['configured_mail_server'],
+            mailPort: settings['configured_mail_port'],
+            mailSecurity: settings['configured_mail_security'],
+            sendUser: settings['configured_send_user'],
+            sendPw: settings['configured_send_pw'],
+            sendServer: settings['configured_send_server'],
+            sendPort: settings['configured_send_port'],
+            sendSecurity: settings['configured_send_security'],
+            e2ee_enabled: settings['configured_e2ee_enabled']
+          }
 
-      const advancedSettings = {
-        mailUser: settings['configured_mail_user'],
-        mailServer: settings['configured_mail_server'],
-        mailPort: settings['configured_mail_port'],
-        mailSecurity: settings['configured_mail_security'],
-        sendUser: settings['configured_send_user'],
-        sendPw: settings['configured_send_pw'],
-        sendServer: settings['configured_send_server'],
-        sendPort: settings['configured_send_port'],
-        sendSecurity: settings['configured_send_security'],
-        e2ee_enabled: settings['configured_e2ee_enabled']
-      }
-
-      this.setState({ settings, advancedSettings })
+          this.setState({ settings, advancedSettings })
+        })
     }
   }
 

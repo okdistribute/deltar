@@ -90,12 +90,15 @@ class Media extends React.Component {
 
   onSelect (id) {
     const msgTypes = GROUPS[id].values
-    const medias = ipcRenderer.sendSync(
+    function onMedia (medias) {
+      this.setState({ id, msgTypes, medias })
+    }
+    ipcRenderer.async(
       'getChatMedia',
       msgTypes[0],
-      msgTypes[1]
+      msgTypes[1],
+      onMedia
     )
-    this.setState({ id, msgTypes, medias })
   }
 
   onClickMedia (message) {
