@@ -1,0 +1,11 @@
+[package]
+name = "deltar"
+version = "0.1.0"
+authors = ["okdistribute" <karissa@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+web-view = "*"#{ path = "../web-view" }
+serde = { version = "1.0.90", features = ["derive"] }
+serde_json = "1.0.39"
+uuid = { version = "0.7.4", features = ["serde", "v4"] }
