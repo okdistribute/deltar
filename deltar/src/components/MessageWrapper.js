@@ -3,7 +3,7 @@ const path = require('path')
 const C = require('deltachat-js/constants')
 const styled = require('styled-components').default
 const Message = require('./conversations/Message')
-const { remote, ipcRenderer } = require('electron')
+const ipcRenderer = window.ipcRenderer
 const StyleVariables = require('./style-variables')
 const moment = require('moment')
 const mime = require('mime-types')
@@ -160,7 +160,7 @@ class RenderMessage extends React.Component {
     as.forEach((a) => {
       a.onclick = (event) => {
         event.preventDefault()
-        remote.shell.openExternal(a.href)
+        //remote.shell.openExternal(a.href)
       }
     })
   }

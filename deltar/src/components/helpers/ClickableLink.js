@@ -1,5 +1,4 @@
 const React = require('react')
-const electron = require('electron')
 
 class ClickableLink extends React.Component {
   constructor (props) {
@@ -11,7 +10,7 @@ class ClickableLink extends React.Component {
 
   onClick (event) {
     event.preventDefault()
-    electron.shell.openExternal(this.href)
+    //electron.shell.openExternal(this.href)
   }
 
   render () {

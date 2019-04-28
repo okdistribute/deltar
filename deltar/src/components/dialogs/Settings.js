@@ -1,6 +1,6 @@
 const React = require('react')
 const crypto = require('crypto')
-const { ipcRenderer, remote } = require('electron')
+const ipcRenderer = window.ipcRenderer
 const styled = require('styled-components').default
 
 const MAGIC_PW = crypto.randomBytes(8).toString('hex')
@@ -101,6 +101,7 @@ class Settings extends React.Component {
   }
 
   onKeysImport () {
+    /*
     const opts = {
       title: window.translate('pref_managekeys_import_explain'),
       defaultPath: remote.app.getPath('downloads'),
@@ -124,9 +125,11 @@ class Settings extends React.Component {
         }
       }
     )
+    */
   }
 
   onKeysExport () {
+    /*
     const opts = {
       title: window.translate('pref_managekeys_export_secret_keys'),
       defaultPath: remote.app.getPath('downloads'),
@@ -146,9 +149,11 @@ class Settings extends React.Component {
         })
       }
     })
+    */
   }
 
   onBackupImport () {
+    /*
     const opts = {
       title: this.translate('import_backup_title'),
       properties: ['openFile'],
@@ -158,9 +163,11 @@ class Settings extends React.Component {
       if (!filenames || !filenames.length) return
       ipcRenderer.send('backupImport', filenames[0])
     })
+    */
   }
 
   onBackupExport () {
+    /*
     let confirmOpts = {
       buttons: [this.translate('cancel'), this.translate('export_backup_desktop')]
     }
@@ -181,6 +188,7 @@ class Settings extends React.Component {
         ipcRenderer.send('backupExport', filenames[0])
       })
     })
+    */
   }
 
   initiateKeyTransfer () {

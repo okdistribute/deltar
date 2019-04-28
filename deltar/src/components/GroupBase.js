@@ -1,6 +1,5 @@
 const ipcRenderer = window.ipcRenderer
 const React = require('react')
-const { dialog } = require('electron').remote
 
 const {
   Alignment,
@@ -80,6 +79,7 @@ class GroupBase extends React.Component {
   }
 
   onSelectGroupImage () {
+    /*
     const tx = window.translate
     dialog.showOpenDialog({
       title: tx('select_group_image_desktop'),
@@ -90,6 +90,7 @@ class GroupBase extends React.Component {
         this.setState({ image: files[0] })
       }
     })
+    */
   }
 
   onRemoveImage () {

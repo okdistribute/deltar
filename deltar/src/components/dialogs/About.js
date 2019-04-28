@@ -1,5 +1,4 @@
 const React = require('react')
-const { remote } = require('electron')
 const { Classes, Dialog } = require('@blueprintjs/core')
 
 const ipcRenderer = window.ipcRenderer

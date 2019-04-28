@@ -1,7 +1,6 @@
 const React = require('react')
 
 const { Button } = require('@blueprintjs/core')
-const { remote } = require('electron')
 const StyleVariables = require('./style-variables')
 const styled = require('styled-components').default
 const { Picker } = require('emoji-mart')
@@ -168,6 +167,7 @@ class Composer extends React.Component {
   }
 
   addFilename () {
+    /*
     remote.dialog.showOpenDialog({
       properties: ['openFile']
     }, (filenames) => {
@@ -175,6 +175,7 @@ class Composer extends React.Component {
         this.props.onSubmit({ filename: filenames[0] })
       }
     })
+    */
   }
 
   showEmojiPicker (show) {
